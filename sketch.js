@@ -6,7 +6,7 @@ let jumpForce = -15;
 function setup() {
   createCanvas(800, 600);
   player = new Player(width / 2, height / 2);
-  
+  windowResized()
   // Create some platforms
   for (let i = 0; i < 10; i++) {
     platforms.push(new Platform(random(width), random(height)));
@@ -33,6 +33,12 @@ function keyPressed() {
   if (key == ' ') {
     player.jump();
   }
+}
+
+function windowResized() {
+  let canvasHeight = windowHeight;
+  let canvasWidth = (canvasHeight * 9) / 16;
+  resizeCanvas(canvasWidth, canvasHeight);
 }
 
 class Player {
