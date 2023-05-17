@@ -11,22 +11,31 @@ let speed;
 
 let gameOver = false;
 
+let webcam
+var tracker = null
+var features = null
+
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
 }
-
 function setup() {
   frameRate(120);
   createCanvas(windowWidth, windowHeight);
   player = Player.create(width / 2, height / 2);
   windowResized();
   generatePlatforms();
+  webcam = createCapture(VIDEO);
+  webcam.size(windowWidth, windowHeight);
+  webcam.hide();
+  tracker = new clm.tracker()
+  tracker.init()
+  tracker.start(webcam.elt)
+
 }
 
 function draw() {
   background(200);
-  
   if(gameOver) {
     drawDead();
   }
@@ -66,9 +75,28 @@ function draw() {
   }
 
   drawScore();
+  printAngle();
+
 }
 
+function printAngle() {
+  features = tracker.getCurrentPosition();
+  if (features.length > 0) {
+    var noseTipX = features[41][0];
+    var leftEarX = features[1][0];  // Update index based on your model
+    var rightEarX = features[12][0];  // Update index based on your model
 
+    var faceWidth = rightEarX - leftEarX;
+    var tilt = (noseTipX - leftEarX) / faceWidth;
+
+    // Convert tilt from [0, 1] to [-1, 1]
+    tilt = 2 * tilt - 1;
+
+    player.setTilt(tilt);
+  }
+
+  
+}
 function keyPressed() {
   if (key == " ") {
     restartGame();
@@ -188,4 +216,3 @@ function drawDead() {
     textSize(32);
     text("Press SPACE to restart! ", width / 2, height / 2);
 }
-

@@ -1,20 +1,32 @@
 const Player = (() => {
     const radius = 25;
-    
+    const maxSpeed = 20  
     function create(x, y) {
       const player = {
         x,
         y,
+        dx: 0,
         dy: 0,
+        angle: 0,
         show() {
           fill(255);
           ellipse(this.x, this.y, radius * 2);
         },
         move() {
+          this.x += this.dx;
+          let speed = Math.abs(this.angle) / 10;
+          if (this.angle > 0) this.x -= speed;
+          if (this.angle < 0) this.x += speed;
           if (keyIsDown(LEFT_ARROW)) this.x -= 5;
           if (keyIsDown(RIGHT_ARROW)) this.x += 5;
           this.y += this.dy;
           this.dy += gravity;
+        },
+        setTilt(tilt) {
+          this.dx = (-1) * tilt * maxSpeed;
+        },
+        setAngle(newAngle) {
+          this.angle = newAngle;
         },
         jump() {
           this.dy = jumpForce;
