@@ -42,6 +42,7 @@ function draw() {
     platform.render();
     if (player.dy >= 0 && player.intersects(platform)) {
       player.jump();
+      score = score + Math.floor(platform.y/100)
     }
     platform.update();
     
@@ -54,6 +55,7 @@ function draw() {
       platforms[i] = Platform.create(x, y, type, springed);
     }
   }
+  drawScore();
 }
 
 
