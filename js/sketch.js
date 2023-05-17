@@ -40,7 +40,7 @@ function draw() {
     let platform = platforms[i];
     platform.y += 5;  // add player's vertical speed to the y position of each platform
     platform.render();
-    if (player.intersects(platform)) {
+    if (player.dy >= 0 && player.intersects(platform)) {
       player.jump();
     }
     platform.update();
