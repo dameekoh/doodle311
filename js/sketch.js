@@ -3,13 +3,17 @@ let platforms = [];
 let gravity = 0.5;
 let jumpForce = -15;
 
+function preload() {
+  springImage = loadImage("/assets/image/spring.png");
+}
+
 function setup() {
   createCanvas(800, 600);
   player = new Player(width / 2, height / 2);
   windowResized()
   // Create some platforms
   for (let i = 0; i < 10; i++) {
-    platforms.push(new Platform(random(width), random(height)));
+    platforms.push(Platform.create(random(width), random(height), Platform.platformTypes.getRandomType(), Math.random() < 0.5));
   }
 }
 
@@ -22,10 +26,11 @@ function draw() {
   
   // Display platforms
   for (let platform of platforms) {
-    platform.show();
+    platform.render();
     if (player.intersects(platform)) {
       player.jump();
     }
+    platform.update();
   }
 }
 
@@ -65,21 +70,20 @@ class Player {
   }
 
   intersects(platform) {
-    // Simple collision detection
-    let distance = dist(this.x, this.y, platform.x, platform.y);
-    return (distance < 10 + platform.size / 2);
-  }
+    let playerRadius = 10; // Assuming the player is a circle with radius 10
+    let platformTop = platform.y - Platform.h / 2;
+    let platformBottom = platform.y + Platform.h / 2;
+    let platformLeft = platform.x - Platform.w / 2;
+    let platformRight = platform.x + Platform.w / 2;
+
+    // Check if player's bottom edge is touching the platform's top edge,
+    // and player's horizontal position is within the platform's width
+    return (
+        this.y + playerRadius > platformTop &&
+        this.y - playerRadius < platformBottom &&
+        this.x + playerRadius > platformLeft &&
+        this.x - playerRadius < platformRight
+    );
 }
 
-class Platform {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.size = 50;
-  }
-  
-  show() {
-    fill(100);
-    rect(this.x, this.y, this.size, 10);
-  }
 }
