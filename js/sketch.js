@@ -1,7 +1,14 @@
 let player;
 let platforms = [];
-let gravity = 0.65;
+let gravity = 0.9;
 let jumpForce = -15;
+
+let stepSize;
+let isMobile;
+let cell;
+let radius;
+let speed;
+
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
@@ -51,48 +58,37 @@ function keyPressed() {
 }
 
 function windowResized() {
-  const REF_HEIGHT = 1289;
-  const REF_WIDTH = 725;
+  // Save previous window dimensions for scaling
+  const prevHeight = height;
+  const prevWidth = width;
 
-  const calculateHeightRatio = () => {
-    if (height > 0) {
-      const heightRatio = height / REF_HEIGHT;
-
-      // Scale movement heights
-      jumpForce *= heightRatio;
-
-      // Scale render heights
-      player.h *= heightRatio;
-      for (let platform of platforms) {
-        platform.h *= heightRatio;
-        platform.springH *= heightRatio;
-      }
-    }
-  };
-
-  const calculateWidthRatio = () => {
-    if (width > 0) {
-      const widthRatio = width / REF_WIDTH;
-
-      // Scale movement widths
-      player.speed *= widthRatio;
-
-      // Scale render widths
-      player.w *= widthRatio;
-      for (let platform of platforms) {
-        platform.w *= widthRatio;
-        platform.springW *= widthRatio;
-      }
-    }
-  };
-
+  // Resize canvas and compute new variables
   stepSize = windowHeight / 9;
-  let canvasHeight = windowHeight;
-  let canvasWidth = (canvasHeight * 9) / 16;
-  resizeCanvas(canvasWidth, canvasHeight);
+  isMobile = window.matchMedia("only screen and (max-width: 768px)").matches;
+  if (!isMobile) {
+    resizeCanvas((windowHeight * 9) / 16, windowHeight);
+  }
+  cell = windowHeight / 30;
 
-  calculateHeightRatio();
-  calculateWidthRatio();
+  // Check if window dimensions are defined
+  if (prevHeight > 0 && prevWidth > 0) {
+    const heightRatio = height / prevHeight;
+    const widthRatio = width / prevWidth;
+
+    // Scale movement heights
+    jumpForce *= heightRatio;
+    gravity *= heightRatio;
+
+    // Scale movement widths
+    speed *= widthRatio;
+
+    // Scale render heights and widths
+    radius *= Math.sqrt(heightRatio * widthRatio);
+
+    // Rescale platforms and player according to new window dimensions
+    platforms.forEach(platform => platform.rescale(widthRatio, heightRatio));
+    player.rescale(widthRatio, heightRatio);
+  }
 }
 
 
@@ -105,7 +101,7 @@ function generatePlatforms() {
     while (type === Platform.platformTypes.FRAGILE) {
       type = Platform.platformTypes.getRandomType();
     }
-    const springed = Math.random() < 0.5; 
+    const springed = Math.random() < 0.2; 
     platforms.push(Platform.create(x, y, type, springed));
   }
 }

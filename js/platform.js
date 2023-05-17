@@ -68,6 +68,11 @@ let Platform = (() => {
                 );
             }
           },
+        rescale(widthRatio, heightRatio) {
+            this.x *= widthRatio;
+            this.y *= heightRatio;
+            // Scale other properties as necessary...
+          },
         update() {
             this.x += this.vx;
             if (this.x > width - w / 2 || this.x < w / 2) {

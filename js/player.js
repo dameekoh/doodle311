@@ -19,6 +19,11 @@ const Player = (() => {
         jump() {
           this.dy = jumpForce;
         },
+        rescale(widthRatio, heightRatio) {
+          this.x *= widthRatio;
+          this.y *= heightRatio;
+          // Scale other properties as necessary...
+        },
         intersects(platform) {
           let platformTop = platform.y - Platform.h / 2;
           let platformBottom = platform.y + Platform.h / 2;
