@@ -1,13 +1,19 @@
-html,
-body {
+
+* {
   margin: 0;
-  padding: 5px;
-  align-items: center;
-  text-align: center;
-  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
 }
 
-canvas {
-  display: block;
-  margin: auto;
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #333;
 }

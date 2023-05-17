@@ -8,8 +8,9 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 600);
-  player = new Player(width / 2, height / 2);
+  frameRate(120);
+  createCanvas(windowWidth, windowHeight);
+  player = Player.create(width / 2, height / 2);
   windowResized()
   // Create some platforms
   for (let i = 0; i < 10; i++) {
@@ -44,46 +45,4 @@ function windowResized() {
   let canvasHeight = windowHeight;
   let canvasWidth = (canvasHeight * 9) / 16;
   resizeCanvas(canvasWidth, canvasHeight);
-}
-
-class Player {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.dy = 0;
-  }
-  
-  show() {
-    fill(255);
-    ellipse(this.x, this.y, 20);
-  }
-  
-  move() {
-    if (keyIsDown(LEFT_ARROW)) this.x -= 5;
-    if (keyIsDown(RIGHT_ARROW)) this.x += 5;
-    this.y += this.dy;
-    this.dy += gravity;
-  }
-
-  jump() {
-    this.dy = jumpForce;
-  }
-
-  intersects(platform) {
-    let playerRadius = 10; // Assuming the player is a circle with radius 10
-    let platformTop = platform.y - Platform.h / 2;
-    let platformBottom = platform.y + Platform.h / 2;
-    let platformLeft = platform.x - Platform.w / 2;
-    let platformRight = platform.x + Platform.w / 2;
-
-    // Check if player's bottom edge is touching the platform's top edge,
-    // and player's horizontal position is within the platform's width
-    return (
-        this.y + playerRadius > platformTop &&
-        this.y - playerRadius < platformBottom &&
-        this.x + playerRadius > platformLeft &&
-        this.x - playerRadius < platformRight
-    );
-}
-
 }
