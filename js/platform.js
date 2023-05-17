@@ -1,6 +1,6 @@
 let Platform = (() => {
-    const w = 110;
-    const h = 28;
+    const w = 85;
+    const h = 25;
     const speed = 2;
     const springW = 14;
     const springH = 14;

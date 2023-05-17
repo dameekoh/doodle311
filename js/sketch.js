@@ -1,6 +1,6 @@
 let player;
 let platforms = [];
-let gravity = 0.9;
+let gravity = 0.75;
 let jumpForce = -15;
 
 let stepSize;
@@ -29,6 +29,12 @@ function draw() {
   player.show();
   player.move();
 
+  // If the player reaches the top of the screen, move all platforms down instead of moving player up
+  if (player.y < 0) {
+    platforms.forEach(platform => platform.y -= player.dy);
+    player.y = 0;  // Keep player's y-coordinate at 0
+  }
+  
   // Display platforms and create new ones
   for (let i = 0; i < platforms.length; i++) {
     let platform = platforms[i];
@@ -44,7 +50,7 @@ function draw() {
       let x = Platform.w / 2 + (width - Platform.w) * Math.random();
       let y = 0;
       let type = Platform.platformTypes.getRandomType();
-      let springed = Math.random() < 0.5;
+      let springed = Math.random() < 0.01;
       platforms[i] = Platform.create(x, y, type, springed);
     }
   }
@@ -91,85 +97,66 @@ function windowResized() {
   }
 }
 
-
-
 function generatePlatforms() {
-  const stepSize = Math.floor(height / 8); 
+  stepSize = Math.floor(height / 8); 
   for (let y = height; y > 0; y -= stepSize) {
     const x = Platform.w / 2 + (width - Platform.w) * Math.random();
     let type = Platform.platformTypes.getRandomType();
     while (type === Platform.platformTypes.FRAGILE) {
       type = Platform.platformTypes.getRandomType();
     }
-    const springed = Math.random() < 0.2; 
+    const springed = Math.random() < 0.01; 
     platforms.push(Platform.create(x, y, type, springed));
   }
 }
 
 function updatePlatforms() {
-  platforms = platforms.map((plat, i) => {
-    const updatedPlatform = {
-      ...plat,
-      y: plat.y - doodler.vy,
-    };
-
+  platforms.forEach((plat, i) => {
+    plat.y -= doodler.vy;
     // Gain score
     score++;
-
-    // Check if the platform needs to be re-rendered to the top
-    if (updatedPlatform.y > height) {
+    // re-render the bottom non-fragile & non-invisible platform to the top
+    // reset position and type
+    if (plat.y > height) {
       if (
-        updatedPlatform.type !== Platform.platformTypes.FRAGILE &&
-        updatedPlatform.type !== Platform.platformTypes.INVISIBLE
+          plat.type !== Platform.platformTypes.FRAGILE &&
+          plat.type !== Platform.platformTypes.INVISIBLE
       ) {
-        // Random x
-        const x = Platform.w / 2 + (width - Platform.w) * Math.random();
+        // Random  x
+        let x = Platform.w / 2 + (width - Platform.w) * Math.random();
         // One screen height off for y
-        const y = updatedPlatform.y - (config.STEPS + 1) * stepSize;
+        let y = plat.y - 10 * stepSize;
         // Random type
-        const type = Platform.platformTypes.getRandomType();
+        let type = Platform.platformTypes.getRandomType();
         // Random springed
-        const springed = Math.random() < config.SPRINGED_CHANCE;
-
-        // Create a new platform to replace the current one
-        const newPlatform = new Platform(x, y, type, springed);
-
-        // If the current platform is fragile, add a stable platform next to it
+        let springed = Math.random() < config.SPRINGED_CHANCE;
+        // Remove current
+        platforms.splice(i, 1);
+        // Add new
+        platforms.push(Platform.create(x, y, type, springed));
+        // If got a fragile one, go add another stable one aside
+        // In case player have nowhere to go
         if (type === Platform.platformTypes.FRAGILE) {
           // 1/3 offset for the x
-          const newPlatformX = (x + width / 3) % width;
+          x = (x + width / 3) % width;
           // Stable type
-          const newPlatformType = Platform.platformTypes.STABLE;
+          type = Platform.platformTypes.STABLE;
           // Random springed
-          const newPlatformSpringed = Math.random() < config.SPRINGED_CHANCE;
-
-          // Create the stable platform next to the fragile platform
-          const stablePlatform = new Platform(
-            newPlatformX,
-            y,
-            newPlatformType,
-            newPlatformSpringed
-          );
-
-          // Add the stable platform to the platforms array
-          platforms.push(stablePlatform);
+          springed = Math.random() < 0.005;
+          // add stable next to the fragile
+          platforms.push(Platform.create(x, y, type, springed));
         }
-
-        // If the platform is not fragile or invisible, there's a chance to generate a blackhole
-        if (
+        // for other types there's a chance to generate blackhole
+        else if (
           !blackhole &&
-          Math.random() < config.BLACKHOLE_CHANCE
+          Math.random() < 0.1
         ) {
           blackhole = new Blackhole((x + width / 2) % width, y);
         }
-
-        return newPlatform;
       } else {
-        // Remove fragile and invisible platforms
-        return null;
+        // Fragile & Invisible just remove
+        platforms.splice(i, 1);
       }
     }
-
-    return updatedPlatform;
-  }).filter(Boolean);
+  });
 }
