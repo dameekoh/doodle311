@@ -1,6 +1,6 @@
 let player;
 let platforms = [];
-let gravity = 0.5;
+let gravity = 0.65;
 let jumpForce = -15;
 
 function preload() {
@@ -15,19 +15,6 @@ function setup() {
   generatePlatforms();
 }
 
-function generatePlatforms() {
-  const stepSize = Math.floor(height / 10); // replace 10 with your own value
-  for (let y = height; y > 0; y -= stepSize) {
-    const x = Platform.w / 2 + (width - Platform.w) * Math.random();
-    let type = Platform.platformTypes.getRandomType();
-    while (type === Platform.platformTypes.FRAGILE) {
-      type = Platform.platformTypes.getRandomType();
-    }
-    const springed = Math.random() < 0.5; // replace 0.5 with your own value
-    platforms.push(Platform.create(x, y, type, springed));
-  }
-}
-
 function draw() {
   background(200);
 
@@ -35,15 +22,27 @@ function draw() {
   player.show();
   player.move();
 
-  // Display platforms
-  for (let platform of platforms) {
+  // Display platforms and create new ones
+  for (let i = 0; i < platforms.length; i++) {
+    let platform = platforms[i];
+    platform.y += 5;  // add player's vertical speed to the y position of each platform
     platform.render();
     if (player.intersects(platform)) {
       player.jump();
     }
     platform.update();
+    
+    // If the platform has moved off screen, replace it with a new one at the top
+    if (platform.y > height) {
+      let x = Platform.w / 2 + (width - Platform.w) * Math.random();
+      let y = 0;
+      let type = Platform.platformTypes.getRandomType();
+      let springed = Math.random() < 0.5;
+      platforms[i] = Platform.create(x, y, type, springed);
+    }
   }
 }
+
 
 function keyPressed() {
   if (key == " ") {
@@ -94,6 +93,21 @@ function windowResized() {
 
   calculateHeightRatio();
   calculateWidthRatio();
+}
+
+
+
+function generatePlatforms() {
+  const stepSize = Math.floor(height / 8); 
+  for (let y = height; y > 0; y -= stepSize) {
+    const x = Platform.w / 2 + (width - Platform.w) * Math.random();
+    let type = Platform.platformTypes.getRandomType();
+    while (type === Platform.platformTypes.FRAGILE) {
+      type = Platform.platformTypes.getRandomType();
+    }
+    const springed = Math.random() < 0.5; 
+    platforms.push(Platform.create(x, y, type, springed));
+  }
 }
 
 function updatePlatforms() {

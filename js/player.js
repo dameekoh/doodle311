@@ -1,5 +1,5 @@
 const Player = (() => {
-    const radius = 40;
+    const radius = 25;
     
     function create(x, y) {
       const player = {
