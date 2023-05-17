@@ -9,6 +9,8 @@ let cell;
 let radius;
 let speed;
 
+let gameOver = false;
+
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
@@ -24,7 +26,10 @@ function setup() {
 
 function draw() {
   background(200);
-
+  
+  if(gameOver) {
+    drawDead();
+  }
   // Display and move the player
   player.show();
   player.move();
@@ -55,13 +60,18 @@ function draw() {
       platforms[i] = Platform.create(x, y, type, springed);
     }
   }
+
+  if (player.y > height) {
+    gameOver = true;
+  }
+
   drawScore();
 }
 
 
 function keyPressed() {
   if (key == " ") {
-    player.jump();
+    restartGame();
   }
 }
 
@@ -162,3 +172,20 @@ function updatePlatforms() {
     }
   });
 }
+
+function restartGame() {
+  // Reset game variables to their initial state
+  gameOver = false;
+  score = 0;
+  player = Player.create(width / 2, height / 2);
+  platforms = [];
+  generatePlatforms();
+}
+
+function drawDead() {
+    textAlign(CENTER);
+    fill(0); // Black color for the text
+    textSize(32);
+    text("Press SPACE to restart! ", width / 2, height / 2);
+}
+
