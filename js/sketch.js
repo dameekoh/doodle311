@@ -65,6 +65,10 @@ function draw() {
 
     if (player.dy >= 0 && player.intersects(platform)) {
       player.jump();
+      if (platform.type === Platform.platformTypes.FRAGILE) {
+        platform.type = Platform.platformTypes.INVISIBLE;
+        platform.springed = false;
+      }
       platform.jumpedOn = true;
       score++;
     }
