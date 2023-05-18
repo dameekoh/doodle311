@@ -40,6 +40,7 @@ let Platform = (() => {
         type,
         vx: speed,
         springed,
+        jumpedOn: false,
         springX: springed ? (Math.random() - 0.5) * w * 0.8 : null,
         springY: springed ? -h / 2 - springH / 2 : null,
         render() {

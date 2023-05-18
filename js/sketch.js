@@ -1,22 +1,22 @@
 let player;
 let platforms = [];
-let gravity = 0.65;
+let gravity = 0.67;
 let jumpForce = -15;
+let BASE_WIDTH = 1280;
+let BASE_HEIGHT = 720;
 
 let stepSize;
 let isMobile;
 let cell;
 let radius;
 let speed;
-
+let platformSpeed = 2;
 let gameOver = false;
+var blackhole;
 
-let webcam
+let webcam;
 var tracker = null
 var features = null
-
-let BASE_WIDTH = 1280;
-let BASE_HEIGHT = 720;
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
@@ -34,18 +34,23 @@ function setup() {
   tracker = new clm.tracker()
   tracker.init()
   tracker.start(webcam.elt)
-
 }
 
 function draw() {
   background(200);
+  
+  if (!blackhole && Math.random() < 0.02) {
+    let x = Math.random() * (width);
+    let y = Math.random() * (height);
+    blackhole = Blackhole.create(x, y);
+    blackhole.setImage(blackholeImage);
+  }
   if(gameOver) {
     drawDead();
   }
   // Display and move the player
   player.show();
   player.move();
-
   // If the player reaches the top of the screen, move all platforms down instead of moving player up
   if (player.y < 0) {
     platforms.forEach(platform => platform.y -= player.dy);
@@ -55,31 +60,57 @@ function draw() {
   // Display platforms and create new ones
   for (let i = 0; i < platforms.length; i++) {
     let platform = platforms[i];
-    platform.y += 5;  // add player's vertical speed to the y position of each platform
+    platform.y += platformSpeed;  // add player's vertical speed to the y position of each platform
     platform.render();
+
     if (player.dy >= 0 && player.intersects(platform)) {
       player.jump();
-      score = score + Math.floor(platform.y/100)
+      platform.jumpedOn = true;
+      score++;
     }
+
     platform.update();
     
     // If the platform has moved off screen, replace it with a new one at the top
     if (platform.y > height) {
+  
       let x = Platform.w / 2 + (width - Platform.w) * Math.random();
       let y = 0;
       let type = Platform.platformTypes.getRandomType();
       let springed = Math.random() < 0.01;
       platforms[i] = Platform.create(x, y, type, springed);
+      platforms[i].jumpedOn = false;
     }
   }
-
-  if (player.y > height) {
-    gameOver = true;
+  
+  if (blackhole) {
+    blackhole.update();
+    blackhole.render();
+    if (player.intersects(blackhole)) {
+      gameOver = true;
+    }
+    // If the blackhole goes off screen, set it to null so a new one can be created
+    if (blackhole.y > height) {
+      blackhole = null;
+    }
+    if (player.y > height) {
+      gameOver = true;
+    }
   }
-
   drawScore();
   printAngle();
-
+  if (score >= 30) {
+    platformSpeed = 3;
+    if (score >= 60) {
+      platformSpeed = 4;
+    }
+    if (score >= 90) {
+      platformSpeed = 5;
+    }
+    if (score >= 120) {
+      platformSpeed = 6;
+    }
+  }
 }
 
 function printAngle() {
@@ -96,9 +127,7 @@ function printAngle() {
     tilt = 2 * tilt - 1;
 
     player.setTilt(tilt);
-  }
-
-  
+  }  
 }
 function keyPressed() {
   if (key == " ") {
@@ -124,7 +153,6 @@ function windowResized() {
   if (prevHeight > 0 && prevWidth > 0) {
     const heightRatio = height / prevHeight;
     const widthRatio = width / prevWidth;
-    console.log(widthRatio);
     // Scale movement heights
     jumpForce *= heightRatio;
     gravity *= heightRatio;
@@ -146,7 +174,7 @@ function generatePlatforms() {
   const additionalPlatforms = Math.floor(width / 150); // Add one platform for each 400 pixels of width
   const totalNumberOfPlatforms = baseNumberOfPlatforms + additionalPlatforms;
 
-  stepSize = Math.floor(height / totalNumberOfPlatforms);
+  stepSize = Math.floor(height / totalNumberOfPlatforms * 1.2);
   for (let i = 0; i < totalNumberOfPlatforms; i++) {
     const y = height - i * stepSize;
     const x = Platform.w / 2 + (width - Platform.w) * Math.random();
@@ -162,8 +190,6 @@ function generatePlatforms() {
 function updatePlatforms() {
   platforms.forEach((plat, i) => {
     plat.y -= doodler.vy;
-    // Gain score
-    score++;
     // re-render the bottom non-fragile & non-invisible platform to the top
     // reset position and type
     if (plat.y > height) {
@@ -200,7 +226,7 @@ function updatePlatforms() {
           !blackhole &&
           Math.random() < 0.1
         ) {
-          blackhole = new Blackhole((x + width / 2) % width, y);
+          blackhole = Blackhole.create(x, y);
         }
       } else {
         // Fragile & Invisible just remove
@@ -217,6 +243,7 @@ function restartGame() {
   player = Player.create(width / 2, height / 2);
   platforms = [];
   generatePlatforms();
+  blackhole = null;
 }
 
 function drawDead() {

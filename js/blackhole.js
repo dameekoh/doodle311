@@ -1,9 +1,8 @@
 const Blackhole = (() => {
     const width = 40;
     const height = 40;
-    const ROCHE_LIMIT = height * 0.75;
-    let blackholeImg;
-  
+    const ROCHE_LIMIT = height * 0.95;
+
     function create(x, y) {
       const blackhole = {
         x,
@@ -18,17 +17,11 @@ const Blackhole = (() => {
             height
           );
         },
-        setBlackholeImage(img) {
+        setImage(img) {
           blackholeImage = img;
         },
-        getROCHE_LIMIT() {
-          return ROCHE_LIMIT;
-        },
-        getWidth() {
-          return width;
-        },
-        getHeight() {
-          return height;
+        update() {
+          this.y += Math.random() * 5;
         },
       };
       return blackhole;
