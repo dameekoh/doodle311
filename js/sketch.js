@@ -1,6 +1,6 @@
 let player;
 let platforms = [];
-let gravity = 0.75;
+let gravity = 0.65;
 let jumpForce = -15;
 
 let stepSize;
@@ -15,6 +15,8 @@ let webcam
 var tracker = null
 var features = null
 
+let BASE_WIDTH = 1280;
+let BASE_HEIGHT = 720;
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
@@ -23,7 +25,7 @@ function preload() {
 function setup() {
   frameRate(120);
   createCanvas(windowWidth, windowHeight);
-  player = Player.create(width / 2, height / 2);
+  player = Player.create((width / 2) * (width / BASE_WIDTH), (height / 2) * (height / BASE_WIDTH));
   windowResized();
   generatePlatforms();
   webcam = createCapture(VIDEO);
@@ -110,18 +112,19 @@ function windowResized() {
   const prevWidth = width;
 
   // Resize canvas and compute new variables
-  stepSize = windowHeight / 7;
+  stepSize = windowHeight / 10 ;
   isMobile = window.matchMedia("only screen and (max-width: 768px)").matches;
   if (!isMobile) {
     resizeCanvas((windowHeight * 9) / 16, windowHeight);
+  } else {
+    resizeCanvas(windowWidth, windowHeight);
   }
   cell = windowHeight / 30;
 
-  // Check if window dimensions are defined
   if (prevHeight > 0 && prevWidth > 0) {
     const heightRatio = height / prevHeight;
     const widthRatio = width / prevWidth;
-
+    console.log(widthRatio);
     // Scale movement heights
     jumpForce *= heightRatio;
     gravity *= heightRatio;
@@ -134,13 +137,18 @@ function windowResized() {
 
     // Rescale platforms and player according to new window dimensions
     platforms.forEach(platform => platform.rescale(widthRatio, heightRatio));
-    player.rescale(widthRatio, heightRatio);
+    player.rescale(radius);
   }
 }
 
 function generatePlatforms() {
-  stepSize = Math.floor(height / 8); 
-  for (let y = height; y > 0; y -= stepSize) {
+  const baseNumberOfPlatforms = 2;
+  const additionalPlatforms = Math.floor(width / 150); // Add one platform for each 400 pixels of width
+  const totalNumberOfPlatforms = baseNumberOfPlatforms + additionalPlatforms;
+
+  stepSize = Math.floor(height / totalNumberOfPlatforms);
+  for (let i = 0; i < totalNumberOfPlatforms; i++) {
+    const y = height - i * stepSize;
     const x = Platform.w / 2 + (width - Platform.w) * Math.random();
     let type = Platform.platformTypes.getRandomType();
     while (type === Platform.platformTypes.FRAGILE) {
