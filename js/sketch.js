@@ -15,12 +15,25 @@ let gameOver = false;
 var blackhole;
 
 let webcam;
-var tracker = null
-var features = null
+var tracker = null;
+var features = null;
+let playerEnteredBlackHole = false;
+
+const sound = {
+  blackhole: null,
+  jump: null,
+  spring: null,
+  fragile: null,
+};
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
-  blackholeImage = loadImage("/assets/image/hole.png")
+  blackholeImage = loadImage("/assets/image/hole.png");
+  soundFormats("mp3", "wav");
+  sound.blackhole = loadSound("/assets/sound/blackhole.mp3");
+  sound.jump = loadSound("/assets/sound/jump.wav");
+  sound.spring = loadSound("/assets/sound/spring.mp3");
+  sound.fragile = loadSound("/assets/sound/fragile.mp3");
 }
 
 function setup() {
@@ -67,8 +80,12 @@ function draw() {
     if (player.dy >= 0 && player.intersects(platform)) {
       player.jump();
       if (platform.type === Platform.platformTypes.FRAGILE) {
+        sound.fragile.play();
         platform.type = Platform.platformTypes.INVISIBLE;
         platform.springed = false;
+      } else if (platform.springed) {
+        sound.spring.play();
+        player.dy = jumpForce * 1.5;
       }
       platform.jumpedOn = true;
       score++;
@@ -92,6 +109,8 @@ function draw() {
     blackhole.render();
     if (player.intersects(blackhole)) {
       gameOver = true;
+      sound.blackhole.play();
+      playerEnteredBlackHole = true;
     }
     // If the blackhole goes off screen, set it to null so a new one can be created
     if (blackhole.y > height) {
@@ -208,7 +227,7 @@ function updatePlatforms() {
         // Random type
         let type = Platform.platformTypes.getRandomType();
         // Random springed
-        let springed = Math.random() < config.SPRINGED_CHANCE;
+        let springed = Math.random() < 0.2;
         // Remove current
         platforms.splice(i, 1);
         // Add new
@@ -258,10 +277,10 @@ function drawDead() {
 }
 
 function touchStarted() {
-  if (touchX < width / 2 && player.dx !== -maxSpeed) {
-    player.dx = -maxSpeed;
-  } else if (touchX >= width / 2 && player.dx !== maxSpeed) {
-    player.dx = maxSpeed;
+  if (mouseX < width / 2 && player.x !== -5) {
+    player.x -= 5;
+  } else if (mouseX >= width / 2 && player.dx !== 5) {
+    player.x += 5;
   }
 }
 
@@ -270,8 +289,8 @@ function touchMoved() {
 }
 
 function touchEnded() {
-  if (player.dx != 0) {
-    player.dx = 0;
+  if (player.x != 0) {
+    player.x = 0;
   }
 }
 

@@ -23,6 +23,9 @@ const Player = (() => {
           if (keyIsDown(RIGHT_ARROW)) this.x += 5;
           this.y += this.dy;
           this.dy += gravity;
+          if (playerEnteredBlackHole) {
+            return;
+          }
         },
         setTilt(tilt) {
           this.dx = (-1) * tilt * maxSpeed;
@@ -32,6 +35,7 @@ const Player = (() => {
         },
         jump() {
           this.dy = jumpForce;
+          sound.jump.play(); // Play jump sound
         },
         rescale(radius) {
 
