@@ -18,6 +18,7 @@ var features = null
 
 function preload() {
   springImage = loadImage("/assets/image/spring.png");
+  blackholeImage = loadImage("/assets/image/hole.png")
 }
 function setup() {
   frameRate(120);
@@ -109,7 +110,7 @@ function windowResized() {
   const prevWidth = width;
 
   // Resize canvas and compute new variables
-  stepSize = windowHeight / 9;
+  stepSize = windowHeight / 7;
   isMobile = window.matchMedia("only screen and (max-width: 768px)").matches;
   if (!isMobile) {
     resizeCanvas((windowHeight * 9) / 16, windowHeight);

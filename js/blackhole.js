@@ -11,7 +11,7 @@ const Blackhole = (() => {
         angle: 0,
         render() {
           image(
-            blackholeImg,
+            blackholeImage,
             this.x - width / 2,
             this.y - height / 2,
             width,
@@ -19,7 +19,7 @@ const Blackhole = (() => {
           );
         },
         setBlackholeImage(img) {
-          blackholeImg = img;
+          blackholeImage = img;
         },
         getROCHE_LIMIT() {
           return ROCHE_LIMIT;

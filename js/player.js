@@ -15,6 +15,8 @@ const Player = (() => {
         move() {
           this.x += this.dx;
           let speed = Math.abs(this.angle) / 10;
+          if (this.x - radius < 0) this.x = radius; // Prevent player from going off screen on the left
+          if (this.x + radius > width) this.x = width - radius; // Prevent player from going off screen on the right
           if (this.angle > 0) this.x -= speed;
           if (this.angle < 0) this.x += speed;
           if (keyIsDown(LEFT_ARROW)) this.x -= 5;
