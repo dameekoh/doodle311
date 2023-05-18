@@ -277,10 +277,10 @@ function drawDead() {
 }
 
 function touchStarted() {
-  if (mouseX < width / 2 && player.x !== -5) {
-    player.x -= 5;
+  if (mouseX < width / 2 && player.dx !== -5) {
+    player.dx -= 5;
   } else if (mouseX >= width / 2 && player.dx !== 5) {
-    player.x += 5;
+    player.dx += 5;
   }
 }
 
@@ -289,8 +289,8 @@ function touchMoved() {
 }
 
 function touchEnded() {
-  if (player.x != 0) {
-    player.x = 0;
+  if (player.dx != 0) {
+    player.dx = 0;
   }
 }
 
