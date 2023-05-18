@@ -22,6 +22,7 @@ function preload() {
   springImage = loadImage("/assets/image/spring.png");
   blackholeImage = loadImage("/assets/image/hole.png")
 }
+
 function setup() {
   frameRate(120);
   createCanvas(windowWidth, windowHeight);
@@ -72,7 +73,6 @@ function draw() {
       platform.jumpedOn = true;
       score++;
     }
-
     platform.update();
     
     // If the platform has moved off screen, replace it with a new one at the top
@@ -256,3 +256,22 @@ function drawDead() {
     textSize(32);
     text("Press SPACE to restart! ", width / 2, height / 2);
 }
+
+function touchStarted() {
+  if (touchX < width / 2 && player.dx !== -maxSpeed) {
+    player.dx = -maxSpeed;
+  } else if (touchX >= width / 2 && player.dx !== maxSpeed) {
+    player.dx = maxSpeed;
+  }
+}
+
+function touchMoved() {
+  touchStarted();
+}
+
+function touchEnded() {
+  if (player.dx != 0) {
+    player.dx = 0;
+  }
+}
+
