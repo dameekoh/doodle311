@@ -51,7 +51,7 @@ function setup() {
 }
 
 function draw() {
-  background(200);
+   background(200);
   
   if (!blackhole && Math.random() < 0.02) {
     let x = Math.random() * (width);
@@ -121,7 +121,7 @@ function draw() {
     }
   }
   drawScore();
-  printAngle();
+  calculateAngle();
   if (score >= 30) {
     platformSpeed = 3;
     if (score >= 60) {
@@ -136,13 +136,12 @@ function draw() {
   }
 }
 
-function printAngle() {
+function calculateAngle() {
   features = tracker.getCurrentPosition();
   if (features.length > 0) {
     var noseTipX = features[41][0];
     var leftEarX = features[1][0];  // Update index based on your model
     var rightEarX = features[12][0];  // Update index based on your model
-
     var faceWidth = rightEarX - leftEarX;
     var tilt = (noseTipX - leftEarX) / faceWidth;
 
